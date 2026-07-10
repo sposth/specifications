@@ -1,4 +1,4 @@
-# Verifiable Credential Catalog
+# Verifiable Credential catalog
 
 > **Status: DRAFT** – proposal for the `specifications` repo, pending developer approval. Reflects code on `creator-credentials-backend@main` as of 2026-07-10.
 
@@ -6,11 +6,11 @@ This is the definitive list of every Verifiable Credential (VC) the Creator Cred
 
 Related specs:
 
-- [`04-connections-and-issuance.md`](./04-connections-and-issuance.md) – the request → accept → verify-signature issuance flow and the issuer↔creator connection lifecycle.
+- [`04-connections-and-issuance.md`](./04-connections-and-issuance.md) – the request → accept → verify-signature issuance flow and the creator↔issuer connection lifecycle.
 - [`06-signing-and-trust-model.md`](./06-signing-and-trust-model.md) – the signing keys, certificates, and DID resolution in depth.
 - [`09-data-model.md`](./09-data-model.md) – the `credential` row, `credential_status`, and persistence.
 
-Object builders live in `src/credentials/credentials.helpers.ts` (a few inline in `credentials.service.ts`); read-side formatters in `credentials.formatters.ts`; the enum in `src/shared/typings/Credentials.ts`.
+Object builders live in `src/credentials/credentials.helpers.ts` (a few inline in `credentials.service.ts`); read-side formatters in `credentials.formatters.ts`; the enum in `src/shared/typings/CredentialType.ts`.
 
 ---
 
@@ -40,7 +40,7 @@ Every issued VC is a W3C VC 2.0 object with the same envelope:
 
 Notes on the envelope:
 
-- **Type chain.** The first two entries are always `VerifiableCredential` and `VerifiableAttestation`; the third is the type-specific marker (e.g. `VerifiableEmail`). Two credential types share the same third marker – see the Data Supplier subsections.
+- **Type chain.** The first two entries are always `VerifiableCredential` and `VerifiableAttestation`; the third is the type-specific marker (e.g. `VerifiableEmail`). Data Supplier and Liccium Data Supplier share the same third marker `VerifiableDataSupplier`; they are distinguished only by the DB `credential_type` column (`DATASUPPLIER` vs `LICCIUM_DATASUPPLIER`).
 - **`validUntil` is a fixed 3-year stamp** (`end.setFullYear(end.getFullYear() + 3)`, e.g. `credentials.helpers.ts:76`). Nothing re-checks expiry server-side; see [Revocation](#revocation).
 - **`issuer` DID.** Platform-self-issued VCs use `issuer: 'did:web:liccium.com'` (hardcoded `credentialsHost = 'liccium.com'`, `credentials.helpers.ts:13`). Issuer-issued VCs derive the issuer DID from the issuer's certificate CN/SAN (`resolveIssuerDidFromCert`, `credentials.helpers.ts:46-66`), falling back to `did:web:<domain>` / the stored `didWeb` / `did:web:liccium.com`.
 - **`credentialSubject.id`** is the subject's **did:key**: `resolveDidKey(user)` returns the external did:key when `activeDidKeySource === 'external'`, otherwise the platform did:key derived from the user's self-signed cert (`credentials.helpers.ts:15-20`); it may instead be the did:key just proven through a keypair challenge when one was consumed.
@@ -103,7 +103,7 @@ These are platform-signed. There is no issuer and no accept flow – the backend
 - **Status / uniqueness:** `PENDING → SUCCESS` via cron, or deleted on disconnect; partial unique index enforces one-`DOMAIN`-per-user.
 - **Revocation:** row deletion on domain disconnect.
 
-### DID:Web – `CredentialType.DidWeb = 'DID_WEB'`
+### did:web – `CredentialType.DidWeb = 'DID_WEB'`
 
 - **Purpose:** attests control of a `did:web` (via a hosted `.well-known/did.json`). Typically an issuer-side identity proof.
 - **Builder:** inline in `createDidWebCredential` (`credentials.service.ts:415-497`).
@@ -119,7 +119,7 @@ These are platform-signed. There is no issuer and no accept flow – the backend
 - **Purpose:** binds the creator's Creator-Credentials did:key to their **Liccium app** did:key (`sameAs`), enabling cross-app credential import.
 - **Builder:** `generateConnectCredentialObjectAndJWS` (`credentials.helpers.ts:359-396`).
 - **Type marker:** `VerifiableDidConnect`.
-- **Claims (`credentialSubject`):** `{ id: didKey, sameAs: licciumDidKey }`. Reuses the **email** schema URL (likely a copy-paste bug; unverified whether intentional).
+- **Claims (`credentialSubject`):** `{ id: didKey, sameAs: licciumDidKey }`. Reuses the **email** schema URL – probably a copy-paste error (unconfirmed).
 - **Trigger:** `POST /v1/users/did-liccium/connect` (`connectLicciumDidKeyToUser`, `users.service.ts:487`) or the public cross-app import `POST /v1/credentials/export` (`credentials.controller.ts:383-387`).
 - **Signing:** path 1 (RS256, platform `x5c`).
 - **Status / uniqueness:** `SUCCESS`. Not conflict-blocked: an existing Connect credential is deleted and re-created (`credentials.service.ts:264-269`).
@@ -146,7 +146,7 @@ All three follow the same request → accept → verify-signature choreography (
 3. Issuer signs the `signingInput` offline with their eIDAS certificate's private key.
 4. Issuer `POST /v1/credentials/:id/accept/verify-signature` → the backend verifies the signature against `issuer.externalCertPem`, flips the row to `SUCCESS`, and stores the issuer-produced JWS as `token`.
 
-The pending type is dispatched by `getPendingCredentialType` (`credentials.controller.ts:468-518`).
+The pending type is dispatched by `getPendingCredentialType` (`credentials.service.ts:974-986`).
 
 **Precondition for all three:** the issuer must have completed the certificate challenge (`externalCertPem` present) or the request/accept is rejected (`credentials.service.ts:539, 716, 893`; `credentials.controller.ts:221-225`).
 
@@ -157,7 +157,7 @@ The pending type is dispatched by `getPendingCredentialType` (`credentials.contr
 - **Type marker:** `VerifiableMembership`.
 - **Claims (`credentialSubject`):** `{ id: subjectDidKey, memberOf: resolveMemberOf(issuer) }`, where `memberOf` is `did:web:<issuer.domain>` / the issuer's stored `didWeb` / `urn:issuer:<id>`. `issuer` comes from the cert when `activeSigningCertSource === 'external'`, else `resolveIssuerDid`. Schema `.../member-cert-signed/schema.json`; `pii: sensitive`.
 - **Trigger:** `POST /v1/credentials/request` with `credentialType: MEMBER`. The subject did:key defaults to `user.didKey` (no keypair challenge required; `credentials.controller.ts:271-275`). The supporting credential returned at accept is the creator's **Email** VC (`findMembershipSupportingCredential`, `credentials.service.ts:618-637`).
-- **Signing:** path 3 (issuer's external cert signature; falls back to helper path 1 while building the unsigned *draft*).
+- **Signing:** path 3 (issuer's external cert signature). The draft VC object is built by the path-1 helper (`generateMembershipCredentialObjectAndJWS`), but that helper's JWS is discarded – accept keeps only the `credentialObject`, rebuilds the `signingInput`, and the stored `token` is the issuer's path-3 detached JWS (`credentials.service.ts:1018-1022`).
 - **Status / uniqueness:** `PENDING → SUCCESS` (verify-signature) or deleted (reject); one-pending-per-(issuer, user).
 - **Revocation:** see [Revocation](#revocation) – no status list; issuer reject / delete only.
 
@@ -195,9 +195,9 @@ The pending type is dispatched by `getPendingCredentialType` (`credentials.contr
 
 There are exactly three signing paths. Which one a VC uses is fixed per type (see the summary table). Full key and certificate detail is in [`06-signing-and-trust-model.md`](./06-signing-and-trust-model.md).
 
-1. **`signJWTWithX5c(payload, issuerCertPem?)`** (`credentials.helpers.ts:422-453`) – `jsonwebtoken.sign`, **RS256**, private key from `HALCOM_CERT_PRIVATE_KEY`. The `x5c` header carries either the supplied issuer cert (external eIDAS cert, base64 DER stripped from PEM) or, when none is supplied, the **platform cert loaded from `./certificates/LICCIUM.der`**. This is the default path for Email, Domain, DID:Web (draft), Connect, EKVC, and cert-less Member drafts.
-   - Caveat: the private key is **always** `HALCOM_CERT_PRIVATE_KEY`, even when the `x5c` header carries an issuer's own cert. For the "issuer-signed via helper" draft path, the header cert and the signing key can therefore be mismatched. The genuinely issuer-signed path is path 3.
-2. **`jose.CompactSign` ES256** (`credentials.service.ts:168-182, 467-481`) – EC P-256 key from `SIGNATURE_KEY_D/X/Y`. Used by the inline **DID:Web** builder (also the out-of-scope Wallet builder). (The Email builder has this path commented out and now uses path 1.)
+1. **`signJWTWithX5c(payload, issuerCertPem?)`** (`credentials.helpers.ts:422-453`) – `jsonwebtoken.sign`, **RS256**, private key from `HALCOM_CERT_PRIVATE_KEY`. The `x5c` header carries either the supplied issuer cert (external eIDAS cert, base64 DER stripped from PEM) or, when none is supplied, the **platform cert loaded from `./certificates/LICCIUM.der`**. This is the default path for Email, Domain, did:web (draft), Connect, and EKVC. It also builds the Member/Data Supplier *draft* object, but that draft's JWS is discarded – the stored signature is always the path-3 issuer JWS.
+   - Caveat: the private key is **always** `HALCOM_CERT_PRIVATE_KEY`, even when the `x5c` header carries an issuer's own cert. The genuinely issuer-signed path is path 3.
+2. **`jose.CompactSign` ES256** (`credentials.service.ts:168-182, 467-481`) – EC P-256 key from `SIGNATURE_KEY_D/X/Y`. Used by the inline **did:web** builder (also the out-of-scope Wallet builder). (The Email builder has this path commented out and now uses path 1.)
 3. **Issuer's external X.509 signature** (`credentials.service.ts:988-1029`) – for the Member / Data Supplier / Liccium Data Supplier *accept* flow. The issuer signs the `header.payload` (`buildSigningInput`, `x5c` = issuer cert, alg `ES256 | RS256` per the cert's key type) offline with their private key; the backend verifies with `crypto.createVerify('SHA256')` against `issuer.externalCertPem` and stores `token = signingInput.signatureB64url`. This is a real detached JWS the issuer produced with their own key.
 
 **No XAdES signing on VC issuance.** `xadesjs` (`cert-challenge/trust-store/eidas/xades-verifier.ts`) is used only to *verify* eIDAS LOTL/TL signatures, never to sign VCs.
@@ -208,8 +208,8 @@ There are exactly three signing paths. Which one a VC uses is fixed per type (se
 
 **Current reality: there is no cryptographic revocation.** No status list, no revocation VC, no `credentialStatus` entry in the VC object. "Revocation" today means one of:
 
-- **Row deletion** – Email / Domain / DID:Web / Connect on disconnect or re-provision; Member / Data Supplier via `POST /v1/credentials/:id/reject` or `DELETE /v1/credentials/:id` (issuer-only, `credentials.controller.ts:521-544`).
-- **Connection flip** – `POST /v1/users/creators/:id/revoke` sets `ConnectionStatus.REVOKED` (`connections.service.ts:82-96`). Revoked connections are filtered out of issuer↔creator reads but **do not delete or invalidate already-issued VCs**.
+- **Row deletion** – Email / Domain / did:web / Connect on disconnect or re-provision; Member / Data Supplier via `POST /v1/credentials/:id/reject` or `DELETE /v1/credentials/:id` (issuer-only, `credentials.controller.ts:521-544`).
+- **Connection flip** – `POST /v1/users/creators/:id/revoke` sets `ConnectionStatus.REVOKED` (`connections.service.ts:82-96`). Revoked connections are filtered out of creator↔issuer reads but **do not delete or invalidate already-issued VCs**.
 - **No `validUntil` enforcement** anywhere beyond the 3-year stamp written into each VC; nothing re-checks expiry server-side.
 
 Consequently, a VC that has been "revoked" by connection flip is still a valid, verifiable, unexpired object in any holder's possession. A verifier cannot today learn revocation status from the credential.

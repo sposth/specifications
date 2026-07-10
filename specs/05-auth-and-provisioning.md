@@ -1,4 +1,4 @@
-# Authentication & user provisioning
+# Authentication & provisioning
 
 > **Status: DRAFT** – proposal for the `specifications` repo, pending developer approval. Reflects code as of 2026-07-10.
 

@@ -1,13 +1,13 @@
-# Signing & Trust Model
+# Signing & trust model
 
 > **Status: DRAFT** – proposal for the `specifications` repo, pending developer approval. Reflects code as of 2026-07-10.
 
 This document specifies how the Creator Credentials backend signs Verifiable Credentials, which DIDs it uses, and how it decides whether an issuer's external eIDAS certificate is trustworthy. It complements the credential-by-credential breakdown in [`03-verifiable-credentials-catalog.md`](03-verifiable-credentials-catalog.md) and the endpoint surface in [`08-api-reference.md`](08-api-reference.md).
 
-It supersedes the retired `signature-profile.md` and refines the surviving `profile.md`:
+It supersedes the retired `signature-profile.md` and refines the surviving `10-profile.md`:
 
 - `signature-profile.md` (retired) – its abstract JAdES/EBSI framing is replaced by this code-grounded account of the signature formats actually emitted (RS256 JWT with `x5c`, ES256 JOSE compact, and detached issuer JWS).
-- [`profile.md`](profile.md) – the DID conventions below (platform `did:web:liccium.com`, subject `did:key`) are the authoritative statement of what the running system uses.
+- [`10-profile.md`](10-profile.md) – the DID conventions below (platform `did:web:liccium.com`, subject `did:key`) are the authoritative statement of what the running system uses.
 
 ---
 
@@ -25,9 +25,9 @@ Helper: `signJWTWithX5c(payload, issuerCertPem?)` (`src/credentials/credentials.
   - If `issuerCertPem` is supplied, the cert's DER (PEM header/footer and whitespace stripped) is placed in `x5c` (`credentials.helpers.ts:434-439`).
   - If not, the **platform certificate** is loaded from `./certificates/LICCIUM.der` and used instead (`credentials.helpers.ts:440-442`).
 
-**Used by:** email, domain, did:web, connect, EKVC, and the *draft* build of Member VCs (the fallback before an issuer signature is attached).
+**Used by:** email, domain, did:web, connect, and EKVC. It also builds the *draft* Member / Data Supplier VC object, but that draft's JWS is **discarded** – the only stored signature for those types is the Path 3 issuer detached JWS.
 
-> **Caveat (mismatch risk).** On this path the signing key is always `HALCOM_CERT_PRIVATE_KEY`, even when the `x5c` header carries an issuer's own certificate. In that "issuer-signed via helper" case the header certificate and the actual signing key do not correspond – a verifier reconstructing the key from `x5c[0]` would fail signature verification. The genuinely issuer-signed path is Path 3 below (`src/credentials/credentials.helpers.ts:425`).
+> **Caveat (mismatch risk).** On this path the signing key is always `HALCOM_CERT_PRIVATE_KEY`, even when the `x5c` header carries an issuer's own certificate. The genuinely issuer-signed path is Path 3 below (`src/credentials/credentials.helpers.ts:425`).
 
 ### Path 2 – JOSE ES256 compact (legacy inline path)
 
@@ -48,7 +48,7 @@ This is the only path where the issuer's own private key produces the signature.
 2. The issuer signs `header.payload` **offline** with their eIDAS certificate's private key (an `openssl dgst -sha256 -sign` command is returned to them).
 3. The backend verifies the returned signature with `crypto.createVerify('SHA256')` against `issuer.externalCertPem`, and on success stores `token = signingInput.signatureB64url` (`credentials.service.ts:988-1029`).
 
-The result is a genuine detached JWS the issuer produced with their own key. See flow (g) in [`08-api-reference.md`](08-api-reference.md) and the accept-flow trace in the flows notes.
+The result is a genuine detached JWS the issuer produced with their own key. See Part (b) of [`04-connections-and-issuance.md`](04-connections-and-issuance.md).
 
 > **No XAdES on issuance.** `xadesjs` is used only to verify eIDAS LOTL/TL signatures (§3), never to sign VCs (`credentials.helpers.ts` has no XAdES call; `cert-challenge/trust-store/eidas/xades-verifier.ts` is verification-only).
 
@@ -60,8 +60,8 @@ The result is a genuine detached JWS the issuer produced with their own key. See
 | Domain | 1 (RS256, platform `x5c`) |
 | Connect | 1 (RS256, platform `x5c`) |
 | External Keypair Verification (EKVC) | 1 (RS256, platform `x5c`) |
-| DID:Web | 2 (JOSE ES256, `SIGNATURE_KEY_*`) |
-| Member | 3 (issuer detached JWS); Path 1 for the draft build |
+| did:web | 2 (JOSE ES256, `SIGNATURE_KEY_*`) |
+| Member | 3 (issuer detached JWS) |
 | Data Supplier | 3 (issuer detached JWS) |
 | Liccium Data Supplier | 3 (issuer detached JWS) |
 
@@ -77,11 +77,11 @@ Platform-self-issued VCs use a hardcoded `issuer: 'did:web:liccium.com'` (`crede
 
 ### Subject DID (`credentialSubject.id`)
 
-Resolved by `resolveDidKey(user)` (`src/credentials/credentials.helpers.ts:14-20`):
+Resolved by `resolveDidKey(user)` (`src/credentials/credentials.helpers.ts:15-20`):
 
 - If `user.activeDidKeySource === 'external'` and `user.externalDidKey` is set, use the **external `did:key`**.
 - Otherwise use the platform `did:key` (`user.didKey`), which is derived from the public key of the user's per-user self-signed X.509 certificate at provisioning time (`publicKeyPemToDid`, `src/users/users.service.ts:73-123`).
-- For DataSupplier / LicciumDataSupplier, the subject id is instead the **just-consumed keypair-challenge `did:key`** – the external EC P-256 key the creator proved possession of (snapshotted at request time; see [`08-api-reference.md`](08-api-reference.md) flow (d')).
+- For DataSupplier / LicciumDataSupplier, the subject id is instead the **just-consumed keypair-challenge `did:key`** – the external EC P-256 key the creator proved possession of (snapshotted at request time; see §04 (external keypair) in [`07-verification-flows.md`](07-verification-flows.md)).
 
 `did:key` math (P-256 point compress/decompress, base58btc, multicodec `0x1200`) lives in `src/shared/did-key.util.ts`.
 
@@ -93,13 +93,13 @@ For issuer-signed credentials the `issuer` field is derived **from the issuer's 
 2. Else the certificate subject CN (`CN=<value>`).
 3. Else fall back to `did:web:liccium.com`.
 
-DataSupplier and LicciumDataSupplier **always** take `issuer` from the cert. Member takes it from the cert when `activeSigningCertSource === 'external'`, else from `resolveIssuerDid` (which prefers `issuer.didWeb`, then `did:web:<issuer.domain>`, then `did:web:liccium.com`; `credentials.helpers.ts:37-42`).
+DataSupplier and LicciumDataSupplier **always** take `issuer` from the cert. Member takes it from the cert when `activeSigningCertSource === 'external'`, else from `resolveIssuerDid` (which prefers `issuer.didWeb`, then `did:web:<issuer.domain>`, then `did:web:liccium.com`; `credentials.helpers.ts:34-38`).
 
 ---
 
 ## 3. eIDAS trust store
 
-Issuer certificates are not trusted blindly. Before an issuer's external certificate is accepted (the cert-challenge flow, `08-api-reference.md` flow (e)), it is validated against an in-memory trust store built from the EU eIDAS **List of Trusted Lists (LOTL)**.
+Issuer certificates are not trusted blindly. Before an issuer's external certificate is accepted (the cert-challenge flow in `07-verification-flows.md` §5), it is validated against an in-memory trust store built from the EU eIDAS **List of Trusted Lists (LOTL)**.
 
 ### What it is
 
@@ -145,7 +145,7 @@ These are deliberate development conveniences that **must be closed before produ
 ## 4. Standards alignment
 
 - **W3C Verifiable Credentials 2.0** – every issued VC is a VC 2.0 object (`@context: ['https://www.w3.org/ns/credentials/v2']`, `validFrom`/`validUntil`, `credentialSubject`, `credentialSchema`, `termsOfUse`). On read it is wrapped with `proof: { type: 'JwtProof2020', jwt: <token> }`. See [`03-verifiable-credentials-catalog.md`](03-verifiable-credentials-catalog.md) §Common shape.
-- **did:web / did:key** – platform issuer identity uses `did:web`; subjects use `did:key` derived from EC/cert public keys. This matches the DID conventions in `profile.md`.
-- **eIDAS / JAdES direction** – issuer certificates are validated against the eIDAS LOTL trust store, and the issuer accept flow already produces a detached JWS over `x5c`+`alg` header material (Path 3), which is the natural substrate for a JAdES profile. Current issuance is **not** yet JAdES-conformant (no XAdES/JAdES signature-level packaging on the VC itself); a future JAdES profile is the intended target, and this document is the current state.
+- **did:web / did:key** – platform issuer identity uses `did:web`; subjects use `did:key` derived from EC/cert public keys. This matches the DID conventions in [`10-profile.md`](10-profile.md).
+- **eIDAS / JAdES direction** – issuer certificates are validated against the eIDAS LOTL trust store, and the issuer accept flow already produces a detached JWS over `x5c`+`alg` header material (Path 3). That JWS is the natural substrate for a JAdES profile. Current issuance is **not** yet JAdES-conformant – there is no XAdES/JAdES signature-level packaging on the VC itself. A future JAdES profile is the intended target; this document describes the current state.
 
 > **Refinement note.** The earlier profile documents described a single uniform signature format; the running system uses the three paths in §1. This document is the ground truth for the current implementation.

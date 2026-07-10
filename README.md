@@ -29,8 +29,7 @@ Read in order; each doc is cited to `path:line` in the code.
 7. [Verification flows](specs/07-verification-flows.md) – email / domain / did:web / external-keypair / issuer eIDAS cert.
 8. [API reference](specs/08-api-reference.md) – the real `/v1` HTTP surface.
 9. [Data model](specs/09-data-model.md) – entities, enums, and the migration-derived schema.
-
-- [Profile](specs/profile.md) – the normative DID-method and data-model profile.
+10. [Profile](specs/10-profile.md) – the normative DID-method and data-model profile.
 
 ## Data models and schemas
 

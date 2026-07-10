@@ -1,4 +1,4 @@
-# 05 – Connections & Issuance
+# Connections & issuance
 
 > **Status: DRAFT** – proposal for the `specifications` repo, pending developer approval. Reflects code as of 2026-07-10.
 
@@ -7,7 +7,7 @@ This document covers the two flows by which an **issuer** grants a Verifiable Cr
 - **(a)** the creator↔issuer **connection lifecycle** (`REQUESTED → ACCEPTED / REJECTED / REVOKED`), and
 - **(b)** the issuer-issued VC **state machine** (`request → PENDING → accept → verify-signature → SUCCESS`), where the issuer signs the credential offline with their eIDAS certificate.
 
-A connection is a prerequisite framing for discovery, but issuance re-checks its own preconditions independently. All routes are under `/v1`; citations reference `path:line` inside `repos/creator-credentials-backend/`.
+A connection sets up the relationship between the creator and issuer; issuance then re-checks its own preconditions independently. All routes are under `/v1`; citations reference `path:line` inside `repos/creator-credentials-backend/`.
 
 For the self-verification proofs these flows depend on (`externalCertPem`, the consumed keypair), see `07-verification-flows.md`. For the VC objects produced, see `03-verifiable-credentials-catalog.md`. For the JWS signing detail (`x5c` header, `signingInput`), see `06-signing-and-trust-model.md`. For raw HTTP contracts, see `08-api-reference.md`.
 
@@ -15,7 +15,7 @@ For the self-verification proofs these flows depend on (`externalCertPem`, the c
 
 ## Part (a) – Creator ↔ Issuer connection lifecycle
 
-A `Connection` is an issuer↔creator relationship with status `ConnectionStatus { REQUESTED, ACCEPTED, REJECTED, REVOKED }` (`src/connections/connection.entity.ts:11-16`). The `connections` module has **no controller** – it is a pure service (`ConnectionsService`) driven by `UsersController` handlers (`notes/backend-system-map.md` §connections).
+A `Connection` is a creator↔issuer relationship with status `ConnectionStatus { REQUESTED, ACCEPTED, REJECTED, REVOKED }` (`src/connections/connection.entity.ts:11-16`). The `connections` module has **no controller** – it is a pure service (`ConnectionsService`) driven by `UsersController` handlers (`notes/backend-system-map.md` §connections).
 
 ### State transitions
 
@@ -32,7 +32,7 @@ A `Connection` is an issuer↔creator relationship with status `ConnectionStatus
 2. **Creator requests.** `POST /v1/users/issuers/:issuerId/confirm-request` → `ConnectionsService.createConnection` creates a `REQUESTED` connection, rejecting a duplicate `REQUESTED` or `ACCEPTED` (`src/connections/connections.service.ts:64-80`). UI: `/creator/issuers/request?issuerId=…`.
 3. **Issuer reviews.** `GET /v1/users/creators?status=PENDING` lists requesters (`CreatorVerificationStatus.Pending` maps to `ConnectionStatus.Requested`). UI: `/issuer/creators/requested`; the nav badge shows the pending count.
 4. **Issuer decides.**
-   - Accept → `POST /v1/users/creators/:creatorId/accept` → `acceptConnection` sets `ACCEPTED` (`src/connections/connections.service.ts:98-138`).
+   - Accept → `POST /v1/users/creators/:creatorId/accept` → `acceptConnection` sets `ACCEPTED` (`src/connections/connections.service.ts:98-116`).
    - Reject → `POST /v1/users/creators/:creatorId/reject` → `REJECTED`.
    - Revoke → `POST /v1/users/creators/:creatorId/revoke` → `REVOKED`.
    - Handlers at `src/users/users.controller.ts:123-156`.

@@ -28,7 +28,7 @@ ClerkRole { Issuer = 'issuer', Creator = 'creator' }   // user.entity.ts:19-22
 **"Host" ≠ a user role.** The platform acts as the Host by self-signing its own
 VCs under `did:web:liccium.com` (`credentialsHost = 'liccium.com'`,
 `credentials.helpers.ts:13`). There is no Host account, no Host login, and no
-`ClerkRole.Host`. Wherever the older `specs/host-*.md` documents imply a Host
+`ClerkRole.Host`. Wherever the older Host-role design (retired) implies a Host
 *user*, read it as **the platform**. (Note the asymmetry from
 `01-architecture-overview.md`: the backend signs *as* `did:web:liccium.com` but
 never serves its own `.well-known/did.json` – it only fetches users' did.json
@@ -123,7 +123,7 @@ Capability lists are summaries; the endpoint-level detail is in
 > **Revocation caveat.** An issuer "revoke" flips the connection status to
 > `REVOKED` (or deletes a credential row); it does **not** invalidate an
 > already-issued VC. A W3C Bitstring Status List revocation model is specified
-> in the older `specs/issuer-vc-revocation.md` but is **Planned / not
+> in [`future/revocation-bitstring-status-list.md`](../future/revocation-bitstring-status-list.md) but is **Planned / not
 > implemented**. See `03-verifiable-credentials-catalog.md` and
 > `06-signing-and-trust-model.md`.
 

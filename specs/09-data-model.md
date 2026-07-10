@@ -1,4 +1,4 @@
-# Data Model
+# Data model
 
 > **Status: DRAFT** – proposal for the `specifications` repo, pending developer approval. Reflects code as of 2026-07-10.
 
@@ -23,7 +23,7 @@ The central identity record. One row per Clerk user, provisioned by the Clerk we
 | `description` | varchar | not null, default text |
 | `name` | varchar | not null, default `'Default name'` |
 | `image_url` | varchar | not null, default `'/images/brand.svg'` |
-| `credentials_to_issue` | enum `CredentialType[]` (array) | not null, default `{}` – issuer's VC offer list |
+| `credentials_to_issue` | enum `CredentialType[]` (array) | not null; entity default `[]`, `'{}'` in the migration SQL – issuer's VC offer list |
 | `domain` | varchar | **unique**, nullable |
 | `domain_record` | varchar | nullable; excluded – DNS TXT challenge value |
 | `domain_pending_verifcation` | boolean | not null, default false *(column name is misspelled in schema)* |
@@ -62,7 +62,7 @@ One row per issued or pending Verifiable Credential. PK `id` (serial).
 
 | Column | Type | Notable defaults / constraints |
 |---|---|---|
-| `email` | varchar | **not null** – overloaded "credential value" field; TODO to rename (`credential.entity.ts:23`) |
+| `email` | varchar | **not null** – overloaded "credential value" field: it stores the email for EMAIL VCs and is reused as a generic value for other credential types; TODO to rename (`credential.entity.ts:23`) |
 | `token` | varchar | not null – the JWS/JWT proof |
 | `credential_object` | jsonb | not null – the raw W3C VC 2.0 object |
 | `issuer_id` | int (FK → `user.id`) | nullable; excluded relation |
@@ -83,7 +83,7 @@ One row per issued or pending Verifiable Credential. PK `id` (serial).
 
 ### `connection` (`src/connections/connection.entity.ts`)
 
-The issuer↔creator relationship. PK `id` (serial). No timestamps.
+The creator↔issuer relationship. PK `id` (serial). No timestamps.
 
 | Column | Type | Notable defaults / constraints |
 |---|---|---|
@@ -91,7 +91,7 @@ The issuer↔creator relationship. PK `id` (serial). No timestamps.
 | `creator_id` | int (FK → `user.id`) | relation `createdConnections` |
 | `status` | enum `ConnectionStatus` | default `REQUESTED` |
 
-(Introduced by migration `1710970800329-add-connection`.) `REVOKED` connections are filtered out of issuer↔creator reads but do **not** invalidate already-issued VCs.
+(Introduced by migration `1710970800329-add-connection`.) `REVOKED` connections are filtered out of creator↔issuer reads but do **not** invalidate already-issued VCs.
 
 ### `template` (`src/templates/template.entity.ts`)
 
@@ -153,7 +153,7 @@ Canonical definitions live in `src/shared/typings/`.
 **`CredentialType`** (`CredentialType.ts`) – DB values:
 `EMAIL`, `WALLET` (Wallet/MetaMask – out of scope for this doc set), `MEMBER`, `DATASUPPLIER`, `LICCIUM_DATASUPPLIER`, `STUDENT`, `DOMAIN`, `DID_WEB`, `CONNECT`, `EXTERNAL_KEYPAIR_VERIFICATION`.
 
-> `STUDENT` is defined in the enum but has **no builder and no create/request path** – it is dead/future (see [`03-verifiable-credentials-catalog.md`](03-verifiable-credentials-catalog.md) §Defined-but-not-issued).
+> `STUDENT` is defined in the enum but has **no builder and no create/request path** – it is dead/future (see [`03-verifiable-credentials-catalog.md`](03-verifiable-credentials-catalog.md) §STUDENT – Planned / not implemented).
 
 **`CredentialVerificationStatus`** (`CredentialVerificationStatus.ts`):
 `PENDING`, `SUCCESS`, `FAILED`. (Stored on `credential.credential_status`.)
@@ -245,6 +245,6 @@ The `users_templates` join table (columns `user_id`, `template_id`) backs the Ma
 
 ## Migrations
 
-- TypeORM runs with **`synchronize: false`** and **`migrationsRun: true`** (`src/app.module.ts:39`): the schema is never auto-diffed against entities; migrations under `src/migrations/` are applied in timestamp order **on every boot**. Entities are auto-globbed via `**/*.entity.{js,ts}`.
+- TypeORM runs with **`synchronize: false`** and **`migrationsRun: true`** (`src/app.module.ts:38-39`): the schema is never auto-diffed against entities; migrations under `src/migrations/` are applied in timestamp order **on every boot**. Entities are auto-globbed via `**/*.entity.{js,ts}`.
 - A standalone `typeorm.config.ts` DataSource (globbing from `dist/`) drives the CLI for generating/running migrations outside the app process.
 - Column-level truth is therefore the migration files, not the entity decorators, where the two could diverge – the entity decorators above match the applied migrations as of this revision.

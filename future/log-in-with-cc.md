@@ -42,4 +42,4 @@ Creator Credentials platform enables creators to authenticate with their email o
 
 ## Verifiable Presentations profile
 
-Verifiable Presentation data model is defined int the [W3C VC specifications](https://w3c.github.io/vc-data-model/#presentations-0). Verifiable Presentations are signed the same way as described in the [email VC issuance specifications](../creator-email-verification.md).
+Verifiable Presentation data model is defined int the [W3C VC specifications](https://w3c.github.io/vc-data-model/#presentations-0). Verifiable Presentations are signed the same way as described in the [email VC issuance specifications](../specs/07-verification-flows.md).

@@ -1,4 +1,4 @@
-# Creator Credentials (CC) Verifiable Credentials (VC) profile
+# Profile
 
 > **Status: DRAFT** – proposal for the `specifications` repo, pending developer approval. Reflects code as of 2026-07-10.
 
@@ -23,14 +23,7 @@ their key material (`resolveDidKey` / `resolveIssuerDidFromCert`;
 
 ## Signature profile
 
-Credentials are issued as JWS. The backend uses **three** concrete signing paths,
-not one: the default platform path (**RS256** JWT with an `x5c` header, signed
-with the platform key), a legacy JOSE **ES256** path used only for the Wallet and
-DID:Web credentials, and a detached issuer-signed JWS produced during the
-cert-challenge acceptance flow. Which path a given credential type takes is fixed
-in code. For the exact algorithms, keys, headers, per-type mapping, and the eIDAS
-LOTL trust model behind issuer certificates, see
-[`06-signing-and-trust-model.md`](06-signing-and-trust-model.md).
+Credentials are issued as JWS via three concrete signing paths, fixed per credential type; see [`06-signing-and-trust-model.md`](06-signing-and-trust-model.md) for the algorithms, keys, headers, per-type mapping, and the eIDAS LOTL trust model behind issuer certificates.
 
 ## Verifiable Credentials Exchange profile
 

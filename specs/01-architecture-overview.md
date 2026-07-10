@@ -118,7 +118,7 @@ reaches out to during a specific verification or import flow.
      did:key), and
   2. a **public** `POST /v1/credentials/export` endpoint authenticated by an
      RS256 JWT verified against a public key rebuilt from
-     `LICCIUM_CLERK_KEYS_{KID,N,E}` (`credentials.controller.ts:282-307`).
+     `LICCIUM_CLERK_KEYS_{KID,N,E}` (`credentials.controller.ts:279-301`).
 
 ---
 

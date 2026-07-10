@@ -1,4 +1,4 @@
-# API Reference
+# API reference
 
 > **Status: DRAFT** – proposal for the `specifications` repo, pending developer approval. Reflects code on `creator-credentials-backend@main` / `creator-credentials-ui@develop` as of 2026-07-10.
 
@@ -111,7 +111,7 @@ Issuer imports an external eIDAS QSeal/QSig X.509 cert and proves private-key po
 | `POST cert-challenge/verify-signature` | Verify signature; persist `user.externalCertPem` (`:38`). | `{ signature }` → verified challenge |
 | `POST cert-challenge/reset` | Wipe non-terminal rows (`:47`). | – → `void` |
 | `DELETE cert-challenge/external-cert` | Remove cert; reset signing source to `platform` (`:53`). | – → `User` |
-| `PATCH cert-challenge/active-source` | Toggle `platform` / `external` signing source (`:59`). | `{ activeSource }` → `User` |
+| `PATCH cert-challenge/active-source` | Toggle `platform` / `external` signing source (`:59`). | `{ source }` → `User` |
 
 Notes (dev/test escape hatches, see `backend-system-map.md` §cert-challenge): if the eIDAS trust store is not ready, chain validation is **skipped and passes** (`validation/cert-validator.service.ts:78-83`); the 60-min challenge TTL check is **commented out** (`cert-challenge.service.ts:110-117`).
 
@@ -127,10 +127,10 @@ Creator proves ownership of an external EC P-256 keypair (for Data Supplier VCs)
 | `GET keypair-challenge/did-key-pem?did=` | Reconstruct PEM from a `did:key:z...` (rejects legacy hash DIDs) (`:30`). | – → `{ publicKeyPem }` (unverified) |
 | `POST keypair-challenge/initiate` | Wipe prior in-progress + verified rows (single-use); create `initiated` (`:49`). | `{ keyFilePrefix? }` → `{ challenge, commands[] }` |
 | `POST keypair-challenge/submit-public-key` | Validate EC P-256 PEM; issue challenge; derive did:key (`:58`). | `{ publicKeyPem }` → challenge + did:key |
-| `POST keypair-challenge/verify-signature` | Verify signature; mark `verified` (NOT written to `User`) (`:67`). | `{ signature }` → `{ didKey }` |
+| `POST keypair-challenge/verify-signature` | Verify signature; mark `verified` (NOT written to `User`) (`:67`). | `{ signature }` → `{ verified, didKey }` |
 | `POST keypair-challenge/reset` | Reset the challenge (`:76`). | – → `void` |
 | `DELETE keypair-challenge/external-key` | Legacy wipe (`:82`). | – → `User` |
-| `PATCH keypair-challenge/active-source` | **No-op**, kept for compatibility (`:88`). | `{ activeSource }` → `User` |
+| `PATCH keypair-challenge/active-source` | **No-op**, kept for compatibility (`:88`). | `{ source }` → `User` |
 
 The verified keypair is ephemeral and single-use: never persisted on `User`, it is `consumeLatestVerified()`-ed at credential-request time and snapshotted onto the pending credential. See [`07-verification-flows.md`](07-verification-flows.md).
 
@@ -142,7 +142,7 @@ Controller `WebhooksController` (`src/webhooks/webhooks.controller.ts`). Public 
 
 | Method + path (`/v1`) | Purpose | Request → response |
 |---|---|---|
-| `POST webhooks/clerk` | Clerk user lifecycle; svix-verified with `CLERK_WEBHOOK_SIGNING_SECRET` (`:24`). | svix event (`user.created`/`updated`/`deleted`) → `void` |
+| `POST webhooks/clerk` | Clerk user lifecycle; svix-verified with `CLERK_WEBHOOK_SIGNING_SECRET` (`:24`). | svix event (`user.created`/`updated`/`deleted`) → `{ received: true }` |
 
 This is the **only writer of new `User` rows** in normal operation. A DB user is created only once Clerk metadata carries `termsAreAccepted` + `termsLink`; otherwise creation is deferred to a later `user.updated`. Role is resolved from `public_metadata.role ?? unsafe_metadata.role` (only literal `'ISSUER'` → `Issuer`).
 

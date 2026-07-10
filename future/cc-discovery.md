@@ -34,7 +34,7 @@ The information is published under 'did:web:<domain-name>/discovery.json'
 
 ### Data model
 
-JSON schema is available [here](../json-schema/discovery/2023-11/schema.json). Example:
+JSON schema is available [here](discovery-json-schema/schema.json). Example:
 
 ```json
 {

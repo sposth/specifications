@@ -1,4 +1,4 @@
-# 04 – Verification Flows
+# Verification flows
 
 > **Status: DRAFT** – proposal for the `specifications` repo, pending developer approval. Reflects code as of 2026-07-10.
 
@@ -79,7 +79,7 @@ Proves control of a domain by hosting a generated `did.json` at `/.well-known/di
 
 ## 4. External EC-P256 keypair challenge (ephemeral, single-use)
 
-The creator proves control of an **external EC P-256 keypair** they intend to use for signing data. The verified key is **never persisted on the `User`** – it is ephemeral and consumed at credential-request time to bind a Data Supplier VC (see `04-connections-and-issuance.md`, flow (g)).
+The creator proves control of an **external EC P-256 keypair** they intend to use for signing data. The verified key is **never persisted on the `User`** – it is ephemeral and consumed at credential-request time to bind a Data Supplier VC (see `04-connections-and-issuance.md`, Part (b)).
 
 **UI entry point:** the in-wizard `CredentialsRequestVerifyKeypair` (step 3 of the credential request wizard, only for `EXTERNAL_KEYPAIR` / `LICCIUM_EXTERNAL_KEYPAIR` templates) plus the `KeypairVerification*` modules. The standalone `/creator/verification/keypair` and `/issuer/verification/keypair` pages are redirect stubs.
 
