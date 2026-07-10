@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/email/schema.json",
-  "title": "Creator Credentials - Verifiable email",
-  "description": "Verifiable email credential",
+  "$id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/data-supplier-cert-signed/schema.json",
+  "title": "Creator Credentials - Verifiable data supplier",
+  "description": "Issuer-signed data-supplier credential (VerifiableDataSupplier)",
   "type": "object",
   "properties": {
     "@context": {
@@ -194,12 +194,16 @@
       "type": "object",
       "properties": {
         "id": {
-          "description": "Defines the DID of the subject that is described by the issued credential",
+          "description": "Defines the DID (did:key) of the subject that is described by the issued credential",
           "type": "string",
           "format": "uri"
         },
-        "email": {
-          "description": "Defines the email of the credential subject",
+        "dataSupplierFor": {
+          "description": "The registry the subject is an authorised data supplier for (e.g. registry.commonsdb.org)",
+          "type": "string"
+        },
+        "sameAs": {
+          "description": "The organisation name of the data supplier, when present",
           "type": "string"
         }
       }

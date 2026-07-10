@@ -2,28 +2,28 @@
   "@context": [
     "https://www.w3.org/ns/credentials/v2"
   ],
-  "id": "urn:uuid:cd9fc280-c072-44d5-9b6f-824c7de2ae67",
+  "id": "urn:uuid:6d3f6f2a-6a1c-4e7f-9b0f-2c9c1a7d4e01",
   "type": [
     "VerifiableCredential",
     "VerifiableAttestation",
-    "VerifiableEmail"
+    "VerifiableDomain"
   ],
   "issuer": "did:web:liccium.com",
   "validFrom": "2026-01-01T00:00:00Z",
   "validUntil": "2029-01-01T00:00:00Z",
   "credentialSubject": {
     "id": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
-    "email": "alice@openfuture.eu"
+    "domain": "alice.example.com"
   },
   "credentialSchema": [
     {
-      "id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/email/schema.json",
+      "id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/domain/schema.json",
       "type": "JsonSchema"
     }
   ],
   "termsOfUse": {
     "type": "PresentationPolicy",
-    "confidentialityLevel": "restricted",
-    "pii": "sensitive"
+    "confidentialityLevel": "public",
+    "pii": "none"
   }
 }

@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/email/schema.json",
-  "title": "Creator Credentials - Verifiable email",
-  "description": "Verifiable email credential",
+  "$id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/external-keypair/schema.json",
+  "title": "Creator Credentials - External keypair verification",
+  "description": "Platform-issued proof that the creator owns an external EC P-256 keypair (ExternalKeypairVerification)",
   "type": "object",
   "properties": {
     "@context": {
@@ -193,13 +193,17 @@
       "description": "Defines information about the subject that is defined by the type chain",
       "type": "object",
       "properties": {
-        "id": {
-          "description": "Defines the DID of the subject that is described by the issued credential",
+        "email": {
+          "description": "The verified email of the creator who owns the external keypair",
+          "type": "string"
+        },
+        "sameAs": {
+          "description": "The did:key derived from the external EC P-256 keypair proven via the keypair challenge",
           "type": "string",
           "format": "uri"
         },
-        "email": {
-          "description": "Defines the email of the credential subject",
+        "organizationName": {
+          "description": "The organisation name associated with the external keypair, when present",
           "type": "string"
         }
       }

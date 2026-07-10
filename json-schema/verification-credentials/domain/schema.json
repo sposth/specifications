@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/email/schema.json",
-  "title": "Creator Credentials - Verifiable email",
-  "description": "Verifiable email credential",
+  "$id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/domain/schema.json",
+  "title": "Creator Credentials - Verifiable domain",
+  "description": "Verifiable domain-control credential (VerifiableDomain)",
   "type": "object",
   "properties": {
     "@context": {
@@ -194,12 +194,12 @@
       "type": "object",
       "properties": {
         "id": {
-          "description": "Defines the DID of the subject that is described by the issued credential",
+          "description": "Defines the DID (did:key) of the subject that is described by the issued credential",
           "type": "string",
           "format": "uri"
         },
-        "email": {
-          "description": "Defines the email of the credential subject",
+        "domain": {
+          "description": "The DNS domain whose control is attested by the credential subject",
           "type": "string"
         }
       }
