@@ -2,22 +2,22 @@
   "@context": [
     "https://www.w3.org/ns/credentials/v2"
   ],
-  "id": "urn:uuid:003a1dd8-a5d2-42ef-8182-e921c0a9f2cd",
+  "id": "urn:uuid:cd9fc280-c072-44d5-9b6f-824c7de2ae67",
   "type": [
     "VerifiableCredential",
     "VerifiableAttestation",
     "VerifiableEmail"
   ],
-  "issuer": "did:web:host.com",
-  "validFrom": "2023-01-01T00:00:00Z",
-  "validUntil": "2025-01-01T00:00:00Z",
+  "issuer": "did:web:liccium.com",
+  "validFrom": "2026-01-01T00:00:00Z",
+  "validUntil": "2029-01-01T00:00:00Z",
   "credentialSubject": {
-    "id": "did:key:alice...#0",
-    "email": "alice@wonderland.com"
+    "id": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
+    "email": "alice@openfuture.eu"
   },
   "credentialSchema": [
     {
-      "id": "https://github.com/creatorcredentials/schemas/email.json",
+      "id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/email/schema.json",
       "type": "JsonSchema"
     }
   ],

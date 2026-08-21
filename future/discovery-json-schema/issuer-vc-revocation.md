@@ -1,9 +1,4 @@
----
-title: Issuer implementation guidelines - Bitstring Status List v1.0
-date: 2024-04-01
-version: 1.0
-tags: revocation
----
+> **PLANNED / NOT IMPLEMENTED.** This describes an intended design that is **not present in the current code** (audited 2026-08-21). It is parked here to preserve intent. For how the system behaves today, see the technical reference under `../specs/`. Current behaviour: "revocation" is row deletion or a connection `REVOKED` flip, with no W3C status list and no server-side `validUntil` enforcement – see `../specs/03-verifiable-credentials-catalog.md`.
 
 W3C-compliant bitstring status list implementation guidelines for Liccium and CreatorCredentials.
 

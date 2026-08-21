@@ -1,3 +1,5 @@
+> **PLANNED / NOT IMPLEMENTED.** This describes an intended design that is **not present in the current code** (audited 2026-08-21). It is parked here to preserve intent. For how the system behaves today, see the technical reference under `../specs/`.
+
 # CC issuers and hosts discovery <!-- omit in toc -->
 
 - [CC host capabilities](#cc-host-capabilities)
@@ -32,7 +34,7 @@ The information is published under 'did:web:<domain-name>/discovery.json'
 
 ### Data model
 
-JSON schema is available [here](../json-schema/discovery/2023-11/schema.json). Example:
+JSON schema is available [here](discovery-json-schema/schema.json). Example:
 
 ```json
 {

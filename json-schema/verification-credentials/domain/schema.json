@@ -1,7 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Creator Credentials - Verifiable domain name",
-  "description": "Verifiable domain name credential",
+  "$id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/domain/schema.json",
+  "title": "Creator Credentials - Verifiable domain",
+  "description": "Verifiable domain-control credential (VerifiableDomain)",
   "type": "object",
   "properties": {
     "@context": {
@@ -38,7 +39,9 @@
         },
         {
           "type": "object",
-          "required": ["id"],
+          "required": [
+            "id"
+          ],
           "properties": {
             "id": {
               "description": "DID of the credential issuer",
@@ -86,7 +89,10 @@
           "type": "string"
         }
       },
-      "required": ["id", "type"]
+      "required": [
+        "id",
+        "type"
+      ]
     },
     "credentialSchema": {
       "description": "One or more schemas that validate the Verifiable Credential.",
@@ -143,7 +149,9 @@
             "type": "string"
           }
         },
-        "required": ["id"],
+        "required": [
+          "id"
+        ],
         "anyOf": [
           {
             "properties": {
@@ -152,7 +160,9 @@
                 "type": "string"
               }
             },
-            "required": ["digestSRI"]
+            "required": [
+              "digestSRI"
+            ]
           },
           {
             "properties": {
@@ -161,7 +171,9 @@
                 "type": "string"
               }
             },
-            "required": ["digestMultibase"]
+            "required": [
+              "digestMultibase"
+            ]
           }
         ]
       }
@@ -182,12 +194,12 @@
       "type": "object",
       "properties": {
         "id": {
-          "description": "Defines the DID of the subject that is described by the issued credential",
+          "description": "Defines the DID (did:key) of the subject that is described by the issued credential",
           "type": "string",
           "format": "uri"
         },
-        "domainName": {
-          "description": "Defines the domainName of the credential subject",
+        "domain": {
+          "description": "The DNS domain whose control is attested by the credential subject",
           "type": "string"
         }
       }
@@ -204,10 +216,16 @@
         "type": {
           "description": "Defines credential schema type",
           "type": "string",
-          "enum": ["JsonSchema", "ShaclValidator2017"]
+          "enum": [
+            "JsonSchema",
+            "ShaclValidator2017"
+          ]
         }
       },
-      "required": ["id", "type"]
+      "required": [
+        "id",
+        "type"
+      ]
     },
     "termsOfUse": {
       "description": "Contains the terms under which the issued credential was issued",
@@ -223,7 +241,9 @@
           "type": "string"
         }
       },
-      "required": ["type"]
+      "required": [
+        "type"
+      ]
     },
     "evidence": {
       "type": "object",
@@ -248,7 +268,9 @@
           ]
         }
       },
-      "required": ["type"]
+      "required": [
+        "type"
+      ]
     }
   }
 }

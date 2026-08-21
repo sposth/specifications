@@ -1,3 +1,5 @@
+> **PLANNED / NOT IMPLEMENTED.** This describes an intended design that is **not present in the current code** (audited 2026-08-21). It is parked here to preserve intent. For how the system behaves today, see the technical reference under `../specs/`.
+
 # Creator uses its Creator Credentials to log in <!-- omit in toc -->
 
 - [Creator authenticates using its Creator VCs](#creator-authenticates-using-its-creator-vcs)
@@ -40,4 +42,4 @@ Creator Credentials platform enables creators to authenticate with their email o
 
 ## Verifiable Presentations profile
 
-Verifiable Presentation data model is defined int the [W3C VC specifications](https://w3c.github.io/vc-data-model/#presentations-0). Verifiable Presentations are signed the same way as described in the [email VC issuance specifications](../creator-email-verification.md).
+Verifiable Presentation data model is defined int the [W3C VC specifications](https://w3c.github.io/vc-data-model/#presentations-0). Verifiable Presentations are signed the same way as described in the [email VC issuance specifications](../specs/07-verification-flows.md).

@@ -2,22 +2,23 @@
     "@context": [
       "https://www.w3.org/ns/credentials/v2"
     ],
-    "id": "urn:uuid:9a6c9d5d-9d4f-41a2-8e3c-5f2f4daf7b34",
+    "id": "urn:uuid:bc8eb17f-bf61-43c4-8a5e-713b6cd19d56",
     "type": [
       "VerifiableCredential",
       "VerifiableAttestation",
-      "VerifiableMembership"
+      "ExternalKeypairVerification"
     ],
-    "issuer": "did:web:openfuture.eu",
+    "issuer": "did:web:liccium.com",
     "validFrom": "2026-01-01T00:00:00Z",
     "validUntil": "2029-01-01T00:00:00Z",
     "credentialSubject": {
-      "id": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
-      "memberOf": "did:web:openfuture.eu"
+      "email": "alice@openfuture.eu",
+      "sameAs": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
+      "organizationName": "Open Future Foundation"
     },
     "credentialSchema": [
       {
-        "id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/member-cert-signed/schema.json",
+        "id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/external-keypair/schema.json",
         "type": "JsonSchema"
       }
     ],
