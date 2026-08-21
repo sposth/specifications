@@ -1,29 +1,29 @@
 {
-  "@context": [
-    "https://www.w3.org/ns/credentials/v2"
-  ],
-  "id": "urn:uuid:7e4a7b3b-7b2d-4f80-8c1a-3d0d2b8e5f12",
-  "type": [
-    "VerifiableCredential",
-    "VerifiableAttestation",
-    "VerifiableDidWeb"
-  ],
-  "issuer": "did:web:liccium.com",
-  "validFrom": "2026-01-01T00:00:00Z",
-  "validUntil": "2029-01-01T00:00:00Z",
-  "credentialSubject": {
-    "id": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
-    "didWeb": "did:web:alice.example.com"
-  },
-  "credentialSchema": [
-    {
-      "id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/did-web/schema.json",
-      "type": "JsonSchema"
+    "@context": [
+      "https://www.w3.org/ns/credentials/v2"
+    ],
+    "id": "urn:uuid:7e4a7b3b-7b2d-4f80-8c1a-3d0d2b8e5f12",
+    "type": [
+      "VerifiableCredential",
+      "VerifiableAttestation",
+      "VerifiableDidWeb"
+    ],
+    "issuer": "did:web:liccium.com",
+    "validFrom": "2026-01-01T00:00:00Z",
+    "validUntil": "2029-01-01T00:00:00Z",
+    "credentialSubject": {
+      "id": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
+      "didWeb": "did:web:alice.example.com"
+    },
+    "credentialSchema": [
+      {
+        "id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/did-web/schema.json",
+        "type": "JsonSchema"
+      }
+    ],
+    "termsOfUse": {
+      "type": "PresentationPolicy",
+      "confidentialityLevel": "public",
+      "pii": "none"
     }
-  ],
-  "termsOfUse": {
-    "type": "PresentationPolicy",
-    "confidentialityLevel": "public",
-    "pii": "none"
-  }
 }

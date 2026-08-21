@@ -1,7 +1,7 @@
 # Creator Credentials – Verification-Credential JSON Schemas (draft)
 
-Proposed, corrected JSON Schemas + examples for every Verifiable Credential
-the backend actually issues. Each schema reuses the existing EBSI-style VC 2.0
+JSON Schemas + examples for every Verifiable Credential
+the backend issues. Each schema reuses the existing EBSI-style VC 2.0
 envelope from `email/schema.json`; only the `credentialSubject.properties`,
 title/description, and `$id` change per type.
 
