@@ -1,0 +1,29 @@
+{
+    "@context": [
+      "https://www.w3.org/ns/credentials/v2"
+    ],
+    "id": "urn:uuid:9a6c9d5d-9d4f-41a2-8e3c-5f2f4daf7b34",
+    "type": [
+      "VerifiableCredential",
+      "VerifiableAttestation",
+      "VerifiableMembership"
+    ],
+    "issuer": "did:web:openfuture.eu",
+    "validFrom": "2026-01-01T00:00:00Z",
+    "validUntil": "2029-01-01T00:00:00Z",
+    "credentialSubject": {
+      "id": "did:key:z6MkhaXgBZDvotDkL5257faiztiGiC2QtKLGpbnnEGta2doK",
+      "memberOf": "did:web:openfuture.eu"
+    },
+    "credentialSchema": [
+      {
+        "id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/member-cert-signed/schema.json",
+        "type": "JsonSchema"
+      }
+    ],
+    "termsOfUse": {
+      "type": "PresentationPolicy",
+      "confidentialityLevel": "restricted",
+      "pii": "sensitive"
+    }
+  }

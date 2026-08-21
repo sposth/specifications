@@ -1,7 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Creator Credentials - Verifiable Wallet Address",
-  "description": "Verifiable wallet address credential",
+  "$id": "https://raw.githubusercontent.com/CreatorCredentials/specifications/main/json-schema/verification-credentials/member-cert-signed/schema.json",
+  "title": "Creator Credentials - Verifiable membership",
+  "description": "Issuer-signed membership credential (VerifiableMembership)",
   "type": "object",
   "properties": {
     "@context": {
@@ -182,12 +183,12 @@
       "type": "object",
       "properties": {
         "id": {
-          "description": "Defines the DID of the subject that is described by the issued credential",
+          "description": "Defines the DID (did:key) of the subject that is described by the issued credential",
           "type": "string",
           "format": "uri"
         },
-        "address": {
-          "description": "Defines the Ethereum address of the credential subject",
+        "memberOf": {
+          "description": "The organisation the subject is a member of, expressed as a did:web, issuer didWeb, or urn:issuer:<id>",
           "type": "string"
         }
       }
